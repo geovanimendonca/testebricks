@@ -11,14 +11,11 @@ def main():
 
     args = parser.parse_args()
 
-    # Inicializar Spark
-    spark = SparkSession.builder.appName("ExemploParametros").getOrCreate()
 
     print("=== Parâmetros recebidos ===")
     print(f"Nome: {args.nome}")
     print(f"Idade: {args.idade}")
     print(f"Limite: {args.limite}")
-
     # Exemplo usando os parâmetros em um Spark DataFrame
     df = spark.range(0, args.limite).withColumnRenamed("id", "numero")
 
