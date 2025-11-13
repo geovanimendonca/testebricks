@@ -1,49 +1,32 @@
+import argparse
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
-
-# No Databricks já existe 'spark', mas esse código também funciona fora
-# try:
-#     spark
-# except NameError:
-# spark = SparkSession.builder.appName("ExemploJoinSpark").getOrCreate()
 
 def main():
-    # Criar DataFrame 1: Clientes
-    df_clientes = spark.createDataFrame(
-        [
-            (1, "João"),
-            (2, "Maria"),
-            (3, "Carlos"),
-        ],
-        ["cliente_id", "nome"]
-    )
+    # Criar parser de argumentos
+    parser = argparse.ArgumentParser(description="Exemplo com parâmetros no Databricks Job")
 
-    # Criar DataFrame 2: Pedidos
-    df_pedidos = spark.createDataFrame(
-        [
-            (1, "Notebook"),
-            (2, "Cadeira"),
-            (2, "Mesa"),
-            (4, "TV"),   # cliente que não existe no df_clientes
-        ],
-        ["cliente_id", "produto"]
-    )
+    parser.add_argument("--nome", type=str, required=True, help="Nome da pessoa")
+    parser.add_argument("--idade", type=int, required=True, help="Idade da pessoa")
+    parser.add_argument("--limite", type=int, default=5, help="Limite de números")
 
-    print("=== DataFrame Clientes ===")
-    df_clientes.show()
+    args = parser.parse_args()
 
-    print("=== DataFrame Pedidos ===")
-    df_pedidos.show()
+    # Inicializar Spark
+    spark = SparkSession.builder.appName("ExemploParametros").getOrCreate()
 
-    # Fazer o join
-    df_join = df_clientes.join(
-        df_pedidos,
-        on="cliente_id",
-        how="inner"       # pode ser: left, right, full, outer, left_anti, etc.
-    )
+    print("=== Parâmetros recebidos ===")
+    print(f"Nome: {args.nome}")
+    print(f"Idade: {args.idade}")
+    print(f"Limite: {args.limite}")
 
-    print("=== Resultado do JOIN ===")
-    df_join.show()
+    # Exemplo usando os parâmetros em um Spark DataFrame
+    df = spark.range(0, args.limite).withColumnRenamed("id", "numero")
+
+    print("=== DataFrame ===")
+    df.show()
+
+    spark.stop()
+
 
 if __name__ == "__main__":
     main()
